@@ -1,29 +1,54 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Literal
 
-from .schemas import CalculateRequest, CalculateResponse
+app = FastAPI(title="Calculator API", version="1.0.0")
 
 
-app = FastAPI(title="WORKATO_TEST Calculator API")
+class CalculatorRequest(BaseModel):
+    operation: Literal["+", "-", "*", "/"]
+    num1: float
+    num2: float
 
 
-@app.post("/calculate", response_model=CalculateResponse)
-def calculate(payload: CalculateRequest) -> CalculateResponse:
-    a = payload.a
-    b = payload.b
-    op = payload.operator
+class CalculatorResponse(BaseModel):
+    operation: str
+    num1: float
+    num2: float
+    result: float
 
-    if op == '+':
-        return CalculateResponse(result=a + b)
-    if op == '-':
-        return CalculateResponse(result=a - b)
-    if op == '*':
-        return CalculateResponse(result=a * b)
-    if op == '/':
-        if b == 0:
-            raise HTTPException(status_code=400, detail="Division by zero is not allowed")
-        return CalculateResponse(result=a / b)
 
-    # This should be unreachable due to Pydantic validation
-    raise HTTPException(status_code=400, detail="Unsupported operator")
+@app.get("/")
+def read_root():
+    return {"message": "Calculator API is running. Use /calculate endpoint for operations."}
 
+
+@app.post("/calculate", response_model=CalculatorResponse)
+def calculate(request: CalculatorRequest):
+    """
+    Perform calculator operations: addition (+), subtraction (-), multiplication (*), division (/)
+    """
+    num1 = request.num1
+    num2 = request.num2
+    operation = request.operation
+    
+    if operation == "+":
+        result = num1 + num2
+    elif operation == "-":
+        result = num1 - num2
+    elif operation == "*":
+        result = num1 * num2
+    elif operation == "/":
+        if num2 == 0:
+            raise HTTPException(status_code=400, detail="Cannot divide by zero")
+        result = num1 / num2
+    else:
+        raise HTTPException(status_code=400, detail="Invalid operation")
+    
+    return CalculatorResponse(
+        operation=operation,
+        num1=num1,
+        num2=num2,
+        result=result
+    )
 

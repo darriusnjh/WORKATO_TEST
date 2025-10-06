@@ -1,3 +1,2 @@
-"""Application package for the calculator API."""
-
+# Calculator API application
 

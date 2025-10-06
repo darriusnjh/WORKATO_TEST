@@ -74,3 +74,27 @@ def test_invalid_operation():
     })
     assert response.status_code == 422  # Validation error for invalid literal
 
+
+def test_current_time_default_utc():
+    response = client.get("/current-time")
+    assert response.status_code == 200
+    data = response.json()
+    assert "current_time" in data
+    assert data["timezone"] == "UTC"
+    assert "timestamp" in data
+    assert isinstance(data["timestamp"], float)
+
+
+def test_current_time_with_timezone():
+    response = client.get("/current-time?timezone=Asia/Singapore")
+    assert response.status_code == 200
+    data = response.json()
+    assert "current_time" in data
+    assert data["timezone"] == "Asia/Singapore"
+    assert "timestamp" in data
+
+
+def test_current_time_invalid_timezone():
+    response = client.get("/current-time?timezone=Invalid/Timezone")
+    assert response.status_code == 400
+    assert "Invalid timezone" in response.json()["detail"]

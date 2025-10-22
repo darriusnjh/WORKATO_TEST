@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock - {{ timezone }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .clock-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 80px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .time {
+            font-size: 96px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .date {
+            font-size: 24px;
+            font-weight: 300;
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .timezone {
+            font-size: 18px;
+            font-weight: 400;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .timezone-selector {
+            margin-top: 30px;
+        }
+
+        .timezone-selector select {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .timezone-selector select:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% {
+                opacity: 1;
+            }
+            50%, 100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <h1>Digital Clock</h1>
+        <div class="time" id="clock">{{ current_time }}</div>
+        <div class="date" id="date">{{ current_date }}</div>
+        <div class="timezone" id="timezone">{{ timezone }}</div>
+
+        <div class="timezone-selector">
+            <select id="timezone-select" onchange="changeTimezone()">
+                <option value="UTC" {% if timezone == "UTC" %}selected{% endif %}>UTC</option>
+                <option value="America/New_York" {% if timezone == "America/New_York" %}selected{% endif %}>New York</option>
+                <option value="America/Los_Angeles" {% if timezone == "America/Los_Angeles" %}selected{% endif %}>Los Angeles</option>
+                <option value="America/Chicago" {% if timezone == "America/Chicago" %}selected{% endif %}>Chicago</option>
+                <option value="Europe/London" {% if timezone == "Europe/London" %}selected{% endif %}>London</option>
+                <option value="Europe/Paris" {% if timezone == "Europe/Paris" %}selected{% endif %}>Paris</option>
+                <option value="Asia/Tokyo" {% if timezone == "Asia/Tokyo" %}selected{% endif %}>Tokyo</option>
+                <option value="Asia/Singapore" {% if timezone == "Asia/Singapore" %}selected{% endif %}>Singapore</option>
+                <option value="Asia/Dubai" {% if timezone == "Asia/Dubai" %}selected{% endif %}>Dubai</option>
+                <option value="Australia/Sydney" {% if timezone == "Australia/Sydney" %}selected{% endif %}>Sydney</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            document.getElementById('clock').innerHTML =
+                hours + '<span class="blink">:</span>' +
+                minutes + '<span class="blink">:</span>' +
+                seconds;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function changeTimezone() {
+            const timezone = document.getElementById('timezone-select').value;
+            window.location.href = `/clock?timezone=${timezone}`;
+        }
+
+        // Update clock every second
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call
+    </script>
+</body>
+</html>
